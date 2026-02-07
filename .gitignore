@@ -53,8 +53,11 @@ data/
 # ===============================
 # Model Files 
 # ===============================
-models/*.pkl
-models/**/*.pkl
+# Ignore everything inside models
+models/*
+# But keep saved models
+!models/saved_models/
+!models/saved_models/*.pkl
 
 # ===============================
 # Build / Cache
