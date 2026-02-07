@@ -1,0 +1,33 @@
+
+"""
+# Save this as config/config.yaml
+
+data:
+  raw_data_path: "data/raw/Credit_Risk_Benchmark.csv"
+  test_size: 0.2
+  random_state: 42
+
+preprocessing:
+  outlier_percentiles: [1, 99]
+  scaling_method: "robust"
+
+feature_engineering:
+  create_interactions: true
+  create_aggregates: true
+  create_bins: true
+
+modeling:
+  models_to_train:
+    - logistic_regression
+    - random_forest
+    - xgboost
+    - lightgbm
+  use_smote: true
+  tune_hyperparameters: true
+  cv_folds: 3
+
+output:
+  models_dir: "models"
+  plots_dir: "plots"
+  reports_dir: "reports"
+"""
