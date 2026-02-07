@@ -1,327 +1,276 @@
-# Credit Risk Prediction - Production ML System
+# 🚀 Credit Risk Model - Training Pipeline & Deployment (FastAPI + LightGBM + Docker)
 
-A complete end-to-end machine learning system for predicting credit default risk. This project demonstrates best practices in data science, MLOps, and production deployment.
+This project is a complete **end-to-end Credit Risk Prediction System** that predicts whether a borrower is likely to **default on a loan** (serious delinquency within the next 2 years).
 
-## Project Overview
+It includes:
+- A full **training pipeline**
+- A saved ML model + preprocessing artifacts
+- A **FastAPI production API**
+- Docker support
+- Railway deployment support
 
-This system predicts whether a borrower will experience serious delinquency within two years using a comprehensive ML pipeline with:
-- **Multiple ML algorithms** (Logistic Regression, Random Forest, XGBoost, LightGBM)
-- **Advanced feature engineering** with domain knowledge
-- **Model interpretability** using SHAP values
-- **Production-ready API** with FastAPI
-- **Docker containerization** for easy deployment
-- **Complete MLOps practices**
+---
 
-## Dataset
+## 📌 What is Credit Risk Prediction?
 
-- **Total Records**: ~17,000 credit applications
-- **Features**: 10 predictors (financial metrics and personal attributes)
-- **Target**: Binary classification (0 = No delinquency, 1 = Delinquency)
-- **Key Features**:
-  - `rev_util`: Revolving credit utilization ratio
-  - `age`: Age of borrower
-  - `debt_ratio`: Debt-to-income ratio
-  - `monthly_inc`: Monthly income
-  - Late payment indicators (30-59, 60-89, 90+ days)
+Credit risk prediction is used by banks and NBFCs to estimate whether a customer will:
+- repay the loan successfully (**No Default**)
+- or fail to repay (**Default**)
 
-##  Project Structure
+This helps financial institutions:
+- reduce bad loans
+- improve approval decisions
+- set better interest rates
 
-```
-credit-risk-model/
-├── data/
-│   ├── raw/
-│   └── processed/
-├── notebooks/
-│   ├── 01_eda.ipynb
-│   ├── 02_data_preprocessing.ipynb
-|   |-- 03 feature_engineering.ipynb
-│   └── 03_modeling.ipynb
-├── src/
-│   ├── data/
-│   │   ├── data_loader.py
-│   │   └── preprocessor.py
-│   ├── features/
-│   │   └── feature_engineering.py
-│   ├── models/
-│   │   ├── train.py
-│   │   ├── evaluate.py
-│   │   └── predict.py
-│   └── utils/
-│       └── helpers.py
+---
+
+## 🎯 Project Goal
+
+Build a machine learning model that classifies loan applicants into:
+
+- `0` → No Default
+- `1` → Default
+
+and expose it using a production-ready API.
+
+---
+
+## 📊 Dataset Information
+
+- **Rows:** 16,714 credit applications
+- **Features:** 10 input variables
+- **Target distribution:** balanced (0 and 1 are equal)
+
+Input Features:
+- `rev_util` → revolving credit utilization ratio  
+- `age` → age of borrower  
+- `late_30_59` → 30–59 days late count  
+- `late_60_89` → 60–89 days late count  
+- `late_90` → 90+ days late count  
+- `debt_ratio` → debt-to-income ratio  
+- `monthly_inc` → monthly income  
+- `open_credit` → open credit lines  
+- `real_estate` → real estate loans  
+- `dependents` → number of dependents  
+
+---
+
+## 🏗️ Project Structure
+
+Credit_Risk_Project/
+│
 ├── api/
-│   ├── main.py (FastAPI)
-│   ├── schemas.py
-│   └── middleware.py
+│ ├── main.py # FastAPI application
+│ ├── schemas.py # Input/output schema
+│ ├── middleware.py # Logging + validation middleware
+│
+├── src/
+│ ├── data/
+│ │ ├── data_loader.py # Data loading logic
+│ │ ├── eda_report.py # EDA report generation
+│ │ └── preprocessor.py # Data preprocessing module
+│ │
+│ ├── features/
+│ │ └── feature_engineering.py # Feature engineering logic
+│ │
+│ ├── models/
+│ │ ├── train.py # Model training logic
+│ │ ├── evaluate.py # Model evaluation utilities
+│ │ └── predict.py # Predictor class (loads artifacts)
+│ │
+│ └── utils/
+│ └── helpers.py # Logging + config utilities
+│
 ├── models/
-│   └── saved_models/
-├── tests/
-│   ├── test_preprocessing.py
-│   └── test_api.py
-├── docker/
-│   ├── Dockerfile
-│   └── docker-compose.yml
-├── monitoring/
-│   ├── model_monitor.py
-│   └── drift_detection.py
+│ └── saved_models/
+│ ├── best_model.pkl
+│ ├── preprocessor.pkl
+│ ├── feature_engineer.pkl
+│
 ├── config/
-│   └── config.yaml
+│ └── config.yaml
+│
+├── docker/
+│ └── docker-compose.yml
+│
+├── Dockerfile
 ├── requirements.txt
-├── setup.py
+├── .gitignore
 └── README.md
-```
 
-## Quick Start
 
-### Prerequisites
-- Python 3.9+
-- Docker & Docker Compose (for deployment)
+---
 
-### Installation
+# ⚙️ Training Pipeline (How the Model Works)
 
-1. **Clone the repository**
-```bash
-git clone https://github.com/swayamjaiswal7/credit-risk-modeling.git
-cd credit-risk-model
-```
+This project contains a full training pipeline that performs:
 
-2. **Create virtual environment**
-```
-python -m venv venv
- # On Windows: venv\Scripts\activate
-```
+### ✅ Step 1: Data Loading
+- Loads dataset
+- validates schema
 
-3. **Install dependencies**
-```bash
-pip install -r requirements.txt
-```
+### ✅ Step 2: Train-Test Split
+- Train data: 80%
+- Test data: 20%
 
-4. **Add your data**
-```bash
-# Place your CSV file in data/raw/
-cp your_credit_risk_data.csv data/raw/credit_risk_benchmark.csv
-```
+### ✅ Step 3: Preprocessing
+- Missing value imputation
+- Outlier handling
+- Scaling using RobustScaler
 
-## Usage
+### ✅ Step 4: Feature Engineering
+- Generates 17 new engineered features  
+- Total features: **10 → 27**
 
-### 1. Exploratory Data Analysis
+### ✅ Step 5: Data Quality Checks
+- NaN check
+- Infinite value check
 
-Generate comprehensive EDA report:
+### ✅ Step 6: Class Balancing
+- Uses **SMOTE** to balance the dataset
 
-```bash
-python 01_eda_report.py
-```
+### ✅ Step 7: Model Training
+Trains multiple ML models:
+- Logistic Regression
+- Random Forest
+- XGBoost
+- LightGBM
 
-**Outputs:**
-- `target_distribution.png` - Class balance visualization
-- `feature_distributions.png` - Feature histograms
-- `correlation_matrix.png` - Feature correlations
-- `outlier_boxplots.png` - Outlier detection
-- `bivariate_distributions.png` - Feature vs target analysis
+---
 
-### 2. Run Complete Pipeline
+# 📌 Training Output (Actual Run Results)
 
-Execute end-to-end training pipeline:
+Below is the real training pipeline output:
 
-```bash
-python main_pipeline.py
-```
+CREDIT RISK MODEL - TRAINING PIPELINE
+Loading data...
+Loaded: (16714, 11)
+Target: {0: 8357, 1: 8357}
 
-**Pipeline Steps:**
-1. ✅ Data loading and validation
-2. ✅ Preprocessing (missing values, outliers, scaling)
-3. ✅ Feature engineering (17 new features)
-4. ✅ Model training (4 algorithms with hyperparameter tuning)
-5. ✅ Model evaluation and comparison
-6. ✅ SHAP interpretability analysis
-7. ✅ Model persistence
+Splitting data...
+Train: (13371, 10), Test: (3343, 10)
 
-**Artifacts Generated:**
-- `models/best_model.pkl` - Best performing model
-- `models/preprocessor.pkl` - Fitted preprocessor
-- `models/feature_engineer.pkl` - Feature transformer
-- `plots/model_comparison.png` - Performance comparison
-- `plots/roc_curves.png` - ROC curves
-- `reports/interpretability/` - SHAP analysis
+Preprocessing (missing values, outliers, scaling)...
+✓ Preprocessed
 
-### 3. Deploy API with Docker
+Feature engineering (creating 17 new features)...
+Original: 10 features -> Engineered: 27 features
 
-#### Option A: Docker Compose (Recommended)
+Data quality check...
+X_train NaN: 0
+X_train Inf: 0
+X_test NaN: 0
+X_test Inf: 0
+✓ Data is clean and ready
 
-```bash
-# Build and start services
-docker-compose up --build
+Applying SMOTE for class imbalance...
+Before SMOTE: {1: 6686, 0: 6685}
+After SMOTE: {1: 6686, 0: 6686}
 
-# Run in detached mode
-docker-compose up -d
+# 🏆 Model Results Summary
 
-# View logs
-docker-compose logs -f api
+| Model | Accuracy | Precision | Recall | F1-Score | ROC-AUC |
+|------|----------|-----------|--------|----------|---------|
+| Logistic Regression | 0.7777 | 0.7843 | 0.7660 | 0.7751 | 0.8573 |
+| Random Forest | 0.7762 | 0.7778 | 0.7732 | 0.7755 | 0.8510 |
+| XGBoost | 0.7637 | 0.7751 | 0.7427 | 0.7586 | 0.8477 |
+| **LightGBM (Best)** | **0.7816** | **0.7888** | **0.7690** | **0.7788** | **0.8583** |
 
-# Stop services
-docker-compose down
-```
+✅ **Best Model Selected: LightGBM**  
+📌 Best ROC-AUC: **0.8583**
+## Why LightGBM?
+- This project uses **LightGBM (Light Gradient Boosting Machine)** as the final selected model because it performed best among all trained models.
 
-#### Option B: Docker Only
+### 🔍 Key Reasons:
 
-```bash
-# Build image
-docker build -t credit-risk-api .
+### ✅ 1. Best Performance
+LightGBM gave the highest overall score in evaluation:
 
-# Run container
-docker run -p 8000:8000 -v $(pwd)/models:/app/models credit-risk-api
-```
+- **ROC-AUC: 0.8583 (Best)**
+- **F1 Score: 0.7788 (Best)**
 
-#### Option C: Local Development
+This means it was able to separate defaulters vs non-defaulters better than other models.
 
-```bash
-# Run FastAPI directly
-uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
-```
+---
 
-### 4. Test API
+### ✅ 2. Handles Non-Linear Relationships
+Credit risk data is not purely linear.  
+Factors like:
 
-**Access Interactive Documentation:**
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+- late payments
+- debt ratio
+- credit utilization
+- income
 
-**Example API Call (Python):**
+combine in complex ways.
 
-```python
-import requests
+LightGBM handles these **non-linear feature interactions** better than Logistic Regression.
 
-# Single prediction
-data = {
-    "rev_util": 0.45,
-    "age": 35,
-    "late_30_59": 0,
-    "debt_ratio": 0.35,
-    "monthly_inc": 5000,
-    "open_credit": 8,
-    "late_90": 0,
-    "real_estate": 1,
-    "late_60_89": 0,
-    "dependents": 2
-}
+---
 
-response = requests.post("http://localhost:8000/predict", json=data)
-print(response.json())
-```
+### ✅ 3. Works Very Well with Tabular Financial Data
+LightGBM is one of the best algorithms for structured/tabular datasets like:
 
-**Example Response:**
+- banking datasets
+- loan datasets
+- insurance datasets
 
-```json
-{
-  "prediction": 0,
-  "probability": 0.1234,
-  "risk_level": "Low",
-  "reason_codes": [
-    "No history of severe delinquency",
-    "Low credit utilization (45.0%)",
-    "Based on overall credit profile analysis"
-  ],
-  "timestamp": "2024-02-01T10:30:00"
-}
-```
+That’s why it is widely used in real-world finance companies.
 
-**cURL Example:**
+---
 
-```bash
-curl -X POST "http://localhost:8000/predict" \
-     -H "Content-Type: application/json" \
-     -d '{
-       "rev_util": 0.45,
-       "age": 35,
-       "late_30_59": 0,
-       "debt_ratio": 0.35,
-       "monthly_inc": 5000,
-       "open_credit": 8,
-       "late_90": 0,
-       "real_estate": 1,
-       "late_60_89": 0,
-       "dependents": 2
-     }'
-```
+### ✅ 4. Fast and Efficient Training
+Compared to XGBoost, LightGBM is:
 
-##  Model Details
+- faster
+- memory efficient
+- scalable for large datasets
 
-### Preprocessing Pipeline
+Even if dataset grows in future, the model can still train efficiently.
 
-1. **Missing Value Imputation**
-   - Monthly income: Median imputation
-   - Dependents: Median imputation
+---
 
-2. **Outlier Treatment**
-   - Percentile capping (1st-99th percentile)
-   - Prevents extreme value influence
 
-3. **Feature Scaling**
-   - RobustScaler for numerical features
-   - Handles outliers better than StandardScaler
+---
 
-### Feature Engineering
+# 📦 Saved Artifacts
 
-**Aggregate Features (7):**
-- Total late payments
-- Severe delinquency indicator
-- Total credit lines
-- Real estate ratio
-- Average late payment severity
-- Dependents per income
+After training, the following artifacts are saved:
 
-**Interaction Features (6):**
-- Financial stress (utilization × debt ratio)
-- Risky borrower score
-- Debt-delinquency risk
-- Age-debt interaction
-- Credit management score
-- Income stability
+models/saved_models/
+├── best_model.pkl
+├── preprocessor.pkl
+└── feature_engineer.pkl
 
-**Binned Features (4):**
-- Age groups
-- Utilization buckets
-- Debt categories
-- Income brackets
 
-### Models Trained
+These artifacts are loaded automatically when the API starts.
 
-| Model | Description | Strengths |
-|-------|-------------|-----------|
-| **Logistic Regression** | Interpretable baseline | Fast, explainable, good for linear relationships |
-| **Random Forest** | Ensemble of decision trees | Handles non-linearity, feature importance |
-| **XGBoost** | Gradient boosting | High performance, handles imbalance well |
-| **LightGBM** | Efficient gradient boosting | Fast training, memory efficient |
+---
 
-### Evaluation Metrics
+# 🌐 FastAPI API Endpoints
 
-Due to class imbalance, we focus on:
-- **ROC-AUC**: Overall discriminative ability
-- **Precision-Recall AUC**: Better for imbalanced data
-- **F1-Score**: Balance of precision and recall
-- **Confusion Matrix**: Detailed error analysis
+Once deployed, the API supports:
 
-### Model Interpretability
+### ✅ Root
+**GET /**
+Returns API info.
 
-**SHAP (SHapley Additive exPlanations):**
-- Global feature importance
-- Local prediction explanations
-- Feature interaction detection
-- Reason code generation for compliance
+### ✅ Health Check
+**GET /health**
+Checks if API and model are loaded.
 
-## API Endpoints
+### ✅ Single Prediction
+**POST /predict**
+Predict default risk for one applicant.
 
-### Health Check
-```
-GET /health
-```
-Returns API health status and model loading state.
+### ✅ Batch Prediction
+**POST /batch_predict**
+Predict default risk for multiple applicants.
 
-### Single Prediction
-```
-POST /predict
-```
-Predict credit risk for a single application.
+---
 
-**Request Body:**
+## 🧪 Example Request (Single Prediction)
+
 ```json
 {
   "rev_util": 0.45,
@@ -335,85 +284,44 @@ Predict credit risk for a single application.
   "late_60_89": 0,
   "dependents": 2
 }
-```
-
-### Batch Prediction
-```
-POST /batch_predict
-```
-Predict multiple applications at once.
-
-**Request Body:**
-```json
+Output:
 {
-  "instances": [
-    {...application1...},
-    {...application2...}
-  ]
+  "prediction": 0,
+  "prediction_label": "No Default",
+  "probability": 0.1234,
+  "probability_no_default": 0.8766,
+  "probability_default": 0.1234,
+  "risk_level": "Low",
+  "reason_codes": [
+    "No history of severe delinquency",
+    "Low credit utilization (45.0%)"
+  ],
+  "timestamp": "2024-02-01T10:30:00.123456"
 }
-## Model Performance
+```
+▶️ Run API Locally
+uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
+Swagger UI:
 
-Expected performance on test set:
+http://127.0.0.1:8000/docs
+🐳 Docker Deployment
+Build Docker Image
+docker build -t credit-risk-api .
+Run Container
+docker run -p 8000:8000 credit-risk-api
+Docs:
 
-| Metric | Logistic Regression | Random Forest | XGBoost | LightGBM |
-|--------|-------------------|---------------|---------|----------|
-| ROC-AUC | ~0.85 | ~0.87 | ~0.88 | ~0.82 |
-| F1-Score | ~0.45 | ~0.50 | ~0.52 | ~0.74 |
-| Precision | ~0.50 | ~0.55 | ~0.58 | ~0.71 |
-| Recall | ~0.42 | ~0.47 | ~0.48 | ~0.73 |
+http://localhost:8000/docs
+🐳 Docker Compose Deployment
+docker compose -f docker/docker-compose.yml up --build
+Stop:
 
-
-## Security & Compliance
-
-### Regulatory Compliance
-- **Explainability**: SHAP values for all predictions
-- **Reason Codes**: Human-readable explanations
-- **Audit Trail**: Complete logging of predictions
-- **Model Cards**: Documentation of model behavior
-
-### Security Features
-- Non-root Docker user
-- Input validation with Pydantic
-- Rate limiting ready
-- Secure API design
-- No hardcoded credentials
-
-## Deployment
-
-### Production Checklist
-
-- [ ] Environment variables configured
-- [ ] Model artifacts uploaded
-- [ ] API authentication implemented
-- [ ] Rate limiting enabled
-- [ ] Monitoring dashboards configured
-- [ ] Alerting rules set up
-- [ ] Backup strategy defined
-- [ ] CI/CD pipeline established
+docker compose -f docker/docker-compose.yml down
+🚀 Railway Deployment
+This project is deployed on Railway.
 
 
-## Documentation
 
-- **API Documentation**: Auto-generated at `/docs` and `/redoc`
-- **Model Card**: See `reports/model_card.md`
-- **Architecture**: See `docs/architecture.md`
-- **Contributing**: See `CONTRIBUTING.md`
+API URL: https://<your-service>.up.railway.app
 
-## 📝 License
-
-This project is licensed under the MIT License - see LICENSE file.
-
-## Acknowledgments
-
-- Dataset: Credit Risk Benchmark Dataset
-- Libraries: scikit-learn, XGBoost, LightGBM, SHAP, FastAPI
-
-## Contact
-
-For questions or issues:
-- GitHub Issues: [Project Issues](https://github.com/swayamjaiswal7/credit-risk-modeling/issues)
-- Email: jswayam341@gmail.com
-
----
-
-**Built with best practices for production ML systems**
+Swagger Docs: https://<your-service>.up.railway.app/docs
