@@ -56,7 +56,7 @@ Input Features:
 ---
 
 ## 🏗️ Project Structure
-
+```
 Credit_Risk_Project/
 │
 ├── api/
@@ -98,7 +98,7 @@ Credit_Risk_Project/
 ├── .gitignore
 └── README.md
 
-
+```
 ---
 
 # ⚙️ Training Pipeline (How the Model Works)
@@ -137,7 +137,7 @@ Trains multiple ML models:
 - LightGBM
 
 ---
-
+```
 # 📌 Training Output (Actual Run Results)
 
 Below is the real training pipeline output:
@@ -166,15 +166,16 @@ X_test Inf: 0
 Applying SMOTE for class imbalance...
 Before SMOTE: {1: 6686, 0: 6685}
 After SMOTE: {1: 6686, 0: 6686}
-
+```
 # 🏆 Model Results Summary
-
+```
 | Model | Accuracy | Precision | Recall | F1-Score | ROC-AUC |
 |------|----------|-----------|--------|----------|---------|
 | Logistic Regression | 0.7777 | 0.7843 | 0.7660 | 0.7751 | 0.8573 |
 | Random Forest | 0.7762 | 0.7778 | 0.7732 | 0.7755 | 0.8510 |
 | XGBoost | 0.7637 | 0.7751 | 0.7427 | 0.7586 | 0.8477 |
 | **LightGBM (Best)** | **0.7816** | **0.7888** | **0.7690** | **0.7788** | **0.8583** |
+```
 
 ✅ **Best Model Selected: LightGBM**  
 📌 Best ROC-AUC: **0.8583**
@@ -236,12 +237,12 @@ Even if dataset grows in future, the model can still train efficiently.
 # 📦 Saved Artifacts
 
 After training, the following artifacts are saved:
-
+```
 models/saved_models/
 ├── best_model.pkl
 ├── preprocessor.pkl
 └── feature_engineer.pkl
-
+```
 
 These artifacts are loaded automatically when the API starts.
 
