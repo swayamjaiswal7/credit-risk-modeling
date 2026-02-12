@@ -125,7 +125,7 @@ async def predict(input_data: CreditRiskInput):
         # Correct argument name: return_proba
         result = predictor.predict_single(
             input_dict,
-            return_proba=True,
+            return_probability=True,
             return_risk_level=True
         )
 
